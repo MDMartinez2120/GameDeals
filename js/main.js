@@ -1,41 +1,65 @@
-function getDeals(){
-    const settings = {
-        "async": true,
-        "crossDomain": true,
-        "url": "https://cheapshark-game-deals.p.rapidapi.com/deals?lowerPrice=0&steamRating=0&desc=0&output=json&steamworks=0&sortBy=Deal%20Rating&AAA=0&pageSize=60&exact=0&upperPrice=50&pageNumber=0&onSale=0&metacritic=0&storeID%5B0%5D=1%2C2%2C3",
-        "method": "GET",
-        "headers": {
-            "X-RapidAPI-Key": CS_API_KEY,
-            "X-RapidAPI-Host": "cheapshark-game-deals.p.rapidapi.com"
-        }
-    };
+const gamecard = document.getElementById('gameCard')
+const searchBar = document.getElementById('searchBar');
 
-    $.ajax(settings).done(function (response) {
-        console.log(response);
-    });
+const options = {
+    method: 'GET',
+    headers: {
+        'X-RapidAPI-Key': CS_API_KEY,
+        'X-RapidAPI-Host': 'cheapshark-game-deals.p.rapidapi.com'
+    }
+};
+
+
+let objArray;
+
+function getGameInfo(){
+    // fetch('https://cheapshark-game-deals.p.rapidapi.com/games?id=612', options)
+    //     .then(response => response.json())
+    //     .then(response => console.log(response))
+    //     .catch(err => console.error(err));
+
+    fetch('https://cheapshark-game-deals.p.rapidapi.com/games?id=612', options)
+        .then(response => response.json())
+        .then(response => {
+            const values = Object.values(response);
+            const valuePosition = values.filter((e) => e.title === 'LEGO Batman' && e.thumb === "https://originassets.akamaized.net/origin-com-store-final-assets-prod/195763/142.0x200.0/1040463_MB_142x200_en_US_^_2017-09-08-15-21-36_d7034d41216b6dc201fb20e0cee37c1e66190a11.jpg");
+            let games = valuePosition.map(data => ({
+                name: data.title.toUpperCase(),
+                image: data.thumb,
+                steam: data.steamAppId
+            }))
+            displayGame(games)
+            console.log(values)
+            console.log(valuePosition)
+        });
+
+
+
+    // fetch('https://cheapshark-game-deals.p.rapidapi.com/games?id=612', options)
+    //     .then(response => response.json())
+    //     .then(response => Object.values(response))
+    //     .then(results => {
+    //         games = results.map(data => ({
+    //             name: data.title.toUpperCase(),
+    //             image: data.thumb,
+    //             steam: data.steamAppId
+    //         }))
+    //         displayGame(games);
+    //     });
 }
 
-
-$('#deals').click(function(e) {
-   const settings = {
-      "async": true,
-      "crossDomain": true,
-      "url": "https://cheapshark-game-deals.p.rapidapi.com/deals?lowerPrice=0&steamRating=0&desc=0&output=json&steamworks=0&sortBy=Deal%20Rating&AAA=0&pageSize=60&exact=0&upperPrice=50&pageNumber=0&onSale=0&metacritic=0&storeID%5B0%5D=1%2C2%2C3",
-      "method": "GET",
-      "headers": {
-         "X-RapidAPI-Key": CS_API_KEY,
-         "X-RapidAPI-Host": "cheapshark-game-deals.p.rapidapi.com"
-      }
-   };
-
-   $.ajax(settings).done(function (response) {
-      console.log(response);
-   });
-});
-
-function displayGame(data) {
-   const title = data.title[0]
-   const titleH5 = document.getElementById('title');
+const displayGame = (game) => {
+    const gameHTMLString =  game.map((gameData) => `
+        <li class="card">
+        <div id="imgBg"><img class="card-img" src = "${gameData.image}"/>
+        </div>
+            <hr>
+            <h2 class="card-title">${gameData.name}</h2>
+            <hr>
+            // <p class="card-subtitle">Type: ${gameData.steam}</p>
+        </li>
+    `).join('')
+    gamecard.innerHTML = gameHTMLString;
 }
 
-
+getGameInfo();

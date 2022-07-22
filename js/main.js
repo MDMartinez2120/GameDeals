@@ -8,44 +8,35 @@ const options = {
         'X-RapidAPI-Host': 'cheapshark-game-deals.p.rapidapi.com'
     }
 };
+let games = [];
 
+searchBar.addEventListener('keyup', (e) => {
+    const searchString = e.target.value;
+    const filteredGames = games.filter((e) => {
+        return e.title.toLowerCase().includes(searchString)
+    });
+    displayGame(filteredGames);
+    console.log(searchString)
+});
 
-let objArray;
-
-function getGameInfo(){
-    // fetch('https://cheapshark-game-deals.p.rapidapi.com/games?id=612', options)
-    //     .then(response => response.json())
-    //     .then(response => console.log(response))
-    //     .catch(err => console.error(err));
-
-    fetch('https://cheapshark-game-deals.p.rapidapi.com/games?id=612', options)
+function getGameInfo(title){
+    fetch(`https://cheapshark-game-deals.p.rapidapi.com/games?id=700`, options)
         .then(response => response.json())
         .then(response => {
             const values = Object.values(response);
-            const valuePosition = values.filter((e) => e.title === 'LEGO Batman' && e.thumb === "https://originassets.akamaized.net/origin-com-store-final-assets-prod/195763/142.0x200.0/1040463_MB_142x200_en_US_^_2017-09-08-15-21-36_d7034d41216b6dc201fb20e0cee37c1e66190a11.jpg");
-            let games = valuePosition.map(data => ({
+            const gameFilter = values.filter((e) => {
+                return e.title && e.thumb && e.steamAppID;
+            });
+
+            let games = gameFilter.map(data => ({
                 name: data.title.toUpperCase(),
                 image: data.thumb,
-                steam: data.steamAppId
+                steam: data.steamAppID
             }))
             displayGame(games)
             console.log(values)
-            console.log(valuePosition)
+            console.log(gameFilter)
         });
-
-
-
-    // fetch('https://cheapshark-game-deals.p.rapidapi.com/games?id=612', options)
-    //     .then(response => response.json())
-    //     .then(response => Object.values(response))
-    //     .then(results => {
-    //         games = results.map(data => ({
-    //             name: data.title.toUpperCase(),
-    //             image: data.thumb,
-    //             steam: data.steamAppId
-    //         }))
-    //         displayGame(games);
-    //     });
 }
 
 const displayGame = (game) => {
@@ -56,7 +47,7 @@ const displayGame = (game) => {
             <hr>
             <h2 class="card-title">${gameData.name}</h2>
             <hr>
-            // <p class="card-subtitle">Type: ${gameData.steam}</p>
+            <p class="card-subtitle">${gameData.steam}</p>
         </li>
     `).join('')
     gamecard.innerHTML = gameHTMLString;

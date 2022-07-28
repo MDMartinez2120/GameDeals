@@ -1,4 +1,4 @@
-const gamecard = document.getElementById('gameCard')
+const gameCard = document.getElementById('gameCard')
 const searchBar = document.getElementById('searchBar');
 
 const options = {
@@ -8,6 +8,7 @@ const options = {
         'X-RapidAPI-Host': 'cheapshark-game-deals.p.rapidapi.com'
     }
 };
+
 let games = [];
 
 searchBar.addEventListener('keyup', (e) => {
@@ -23,8 +24,11 @@ function getGameInfo(title){
     fetch(`https://cheapshark-game-deals.p.rapidapi.com/games?id=700`, options)
         .then(response => response.json())
         .then(response => {
-            const values = Object.values(response);
-            const gameFilter = values.filter((e) => {
+
+            const basicGameInfo = Object.entries(response)[0];
+            const gameDeals = Object.entries(response)[1];
+
+            const gameFilter = basicGameInfo.filter((e) => {
                 return e.title && e.thumb && e.steamAppID;
             });
 
@@ -33,14 +37,24 @@ function getGameInfo(title){
                 image: data.thumb,
                 steam: data.steamAppID
             }))
+
+            const dealFilter = gameDeals.filter((e) => {
+                return e.price;
+            })
+
+            let gamePrice = dealFilter.map(data => ({
+                price: data.price
+            }))
+
             displayGame(games)
-            console.log(values)
+            console.log(basicGameInfo)
             console.log(gameFilter)
+            console.log(gameDeals)
         });
 }
 
 const displayGame = (game) => {
-    const gameHTMLString =  game.map((gameData) => `
+    const gameHTMLString = game.map((gameData) => `
         <li class="card">
         <div id="imgBg"><img class="card-img" src = "${gameData.image}"/>
         </div>
@@ -50,7 +64,20 @@ const displayGame = (game) => {
             <p class="card-subtitle">${gameData.steam}</p>
         </li>
     `).join('')
-    gamecard.innerHTML = gameHTMLString;
+    gameCard.innerHTML = gameHTMLString;
 }
+
+const displayPrices = (gamePrice) => {
+    const gamePriceHTMLString = gamePrice.map((gameData) => `
+        <li class="card">
+        </div>
+            <hr>
+            <h2 class="card-title">${gameData.price}</h2>
+        </li>
+    `).join('')
+    gameCard.innerHTML = gamePriceHTMLString;
+}
+
+
 
 getGameInfo();
